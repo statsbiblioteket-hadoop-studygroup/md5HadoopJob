@@ -1,4 +1,4 @@
-package dk.statsbiblioteket.scape.hadoop;
+package dk.statsbiblioteket.hadoop.md5sumjob;
 
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
