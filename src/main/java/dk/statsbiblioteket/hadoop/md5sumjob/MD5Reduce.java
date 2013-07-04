@@ -1,5 +1,7 @@
 package dk.statsbiblioteket.hadoop.md5sumjob;
 
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
@@ -9,25 +11,20 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * Created with IntelliJ IDEA.
+ * https://github.com/statsbiblioteket-hadoop-studygroup
  * User: bam
  * Date: 2/8/13
- * Time: 10:20 AM
- * To change this template use File | Settings | File Templates.
  */
-public class MD5Reduce implements Reducer {
-    @Override
-    public void reduce(Object o, Iterator iterator, OutputCollector outputCollector, Reporter reporter) throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+public class MD5Reduce extends org.apache.hadoop.mapreduce.Reducer<Text, LongWritable, Text, LongWritable> {
+    private LongWritable total = new LongWritable();
 
     @Override
-    public void close() throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void configure(JobConf entries) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    protected void reduce(Text token, Iterable<LongWritable> counts, Context context)
+            throws IOException, InterruptedException {
+        long n = 0;
+        for (LongWritable count : counts)
+            n += count.get();
+        total.set(n);
+        context.write(token, total);
     }
 }

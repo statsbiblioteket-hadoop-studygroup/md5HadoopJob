@@ -18,29 +18,26 @@ import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 
+/**
+ * https://github.com/statsbiblioteket-hadoop-studygroup
+ * User: bam
+ * Date: 2/8/13
+ */
 public class MD5Job extends Configured implements Tool{
 
     @Override
     public int run(String[] args) throws Exception {
-        // Configuration processed by ToolRunner
         Configuration configuration = getConf();
+        //configuration.addResource(System.getProperties().getProperty("HOME"));
 
-        // Create a JobConf using the processed conf
-        //JobConf jobConf = new JobConf(configuration, MD5Job.class);
-
-        // Process custom command-line options
-        //Path in = new Path(args[1]);
-        //Path out = new Path(args[2]);
-
-        // Specify job-specific parameters
         Job job = new Job(configuration, "MD5Job");
         job.setJarByClass(MD5Job.class);
 
-        //int n = args.length;
-        //if (n > 0)
-        //    TextInputFormat.addInputPath(job, new Path(args[0]));
-        //if (n > 1)
-        //    SequenceFileOutputFormat.setOutputPath(job, new Path(args[1]));
+        int n = args.length;
+        if (n > 0)
+            TextInputFormat.addInputPath(job, new Path(args[0]));
+        if (n > 1)
+            SequenceFileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         job.setMapperClass(MD5Map.class);
         job.setCombinerClass(MD5Reduce.class);
@@ -51,10 +48,6 @@ public class MD5Job extends Configured implements Tool{
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
-
-        // Submit the job, then poll for progress until the job is complete
-        //JobClient.runJob(jobConf);
-        //return 0;
 
         return job.waitForCompletion(true) ? 0 : -1;
     }

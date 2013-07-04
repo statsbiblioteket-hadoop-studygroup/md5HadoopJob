@@ -15,31 +15,42 @@ import org.apache.hadoop.mapred.Reporter;
 
 import java.io.*;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * https://github.com/statsbiblioteket-hadoop-studygroup
+ * User: bam
+ * Date: 2/8/13
+ */
 public class MD5Map extends Mapper<LongWritable, Text, Text, LongWritable> {
+    final private static LongWritable ONE = new LongWritable(1);
 
-        @Override
-        protected void map(LongWritable offset, Text text, org.apache.hadoop.mapreduce.Mapper.Context context) throws IOException, InterruptedException {
+    @Override
+    protected void map(LongWritable line, Text text, org.apache.hadoop.mapreduce.Mapper.Context context) throws IOException, InterruptedException {
 
-        Runtime rt = Runtime.getRuntime();
+        ProcessBuilder pb = new ProcessBuilder("md5sum", text.toString());
+        //set the working directory to a temporary directory
+        pb.directory(new File("/tmp/hadoopmd5/"));
 
-        Process pr = rt.exec("md5sum");
+        //pb.environment().put("PATH", "/usr/bin/");
 
-        BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+        //start the executable
+        Process proc = pb.start();
+        //create a log of the console output??
+        BufferedReader stdout = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        BufferedReader stderr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
-        String line=null;
+        context.write(stdout, ONE);//TODO
 
-        while((line=input.readLine()) != null) {
-            System.out.println(line);
-        }
-
-        int exitVal = 0;
         try {
-            exitVal = pr.waitFor();
+            //wait for process to end before continuing
+            proc.waitFor();
         } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("Exited with error code "+exitVal);
+
     }
 
 }
