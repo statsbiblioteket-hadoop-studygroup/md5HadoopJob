@@ -27,11 +27,11 @@ public class MD5Map extends Mapper<LongWritable, Text, Text, LongWritable> {
     final private static LongWritable ONE = new LongWritable(1);
 
     @Override
-    protected void map(LongWritable line, Text text, org.apache.hadoop.mapreduce.Mapper.Context context) throws IOException, InterruptedException {
+    protected void map(LongWritable line, Text text, Context context) throws IOException, InterruptedException {
 
-        ProcessBuilder pb = new ProcessBuilder("md5sum", text.toString());
+        ProcessBuilder pb = new ProcessBuilder("/usr/bin/md5sum", text.toString());
         //set the working directory to a temporary directory
-        pb.directory(new File("/tmp/hadoopmd5/"));
+        //pb.directory(new File("/tmp/hadoopmd5/"));
 
         //pb.environment().put("PATH", "/usr/bin/");
 
@@ -41,11 +41,14 @@ public class MD5Map extends Mapper<LongWritable, Text, Text, LongWritable> {
         BufferedReader stdout = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         BufferedReader stderr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
-        context.write(stdout, ONE);//TODO
-
         try {
             //wait for process to end before continuing
             proc.waitFor();
+            Text key = new Text("output key");
+            if (stdout.ready()) {
+                key = new Text(stdout.readLine());
+            }
+            context.write(key, ONE);//TODO
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

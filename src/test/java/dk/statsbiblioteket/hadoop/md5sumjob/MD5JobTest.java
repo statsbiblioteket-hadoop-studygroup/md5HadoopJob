@@ -8,6 +8,10 @@ import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +28,14 @@ public class MD5JobTest {
 
     @Before
     public void setUp() {
+        ProcessBuilder pb = new ProcessBuilder("/usr/bin/md5sum", "/home/bam/Projects/md5mapreduce/src/test/resources/thermo.wav");
+        try {
+            Process proc = pb.start();
+            System.out.println((new BufferedReader(new InputStreamReader(proc.getInputStream()))).readLine());
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         MD5Map mapper = new MD5Map();
         MD5Reduce reducer = new MD5Reduce();
         mapDriver = new MapDriver<LongWritable, Text, Text, LongWritable>();
