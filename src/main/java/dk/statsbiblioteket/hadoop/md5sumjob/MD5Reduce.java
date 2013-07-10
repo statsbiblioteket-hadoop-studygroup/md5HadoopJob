@@ -19,12 +19,12 @@ public class MD5Reduce extends org.apache.hadoop.mapreduce.Reducer<Text, LongWri
     private LongWritable total = new LongWritable();
 
     @Override
-    protected void reduce(Text token, Iterable<LongWritable> counts, Context context)
-            throws IOException, InterruptedException {
+    protected void reduce(Text logPath, Iterable<LongWritable> exitCodes, Context context)
+            throws IOException, InterruptedException {//TODO
         long n = 0;
-        for (LongWritable count : counts)
+        for (LongWritable count : exitCodes)
             n += count.get();
         total.set(n);
-        context.write(token, total);
+        context.write(logPath, total);
     }
 }

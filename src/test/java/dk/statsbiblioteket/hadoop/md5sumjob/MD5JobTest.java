@@ -26,6 +26,11 @@ public class MD5JobTest {
     MapDriver<LongWritable, Text, Text, LongWritable> mapDriver;
     ReduceDriver<Text, LongWritable, Text, LongWritable> reduceDriver;
 
+    Text inputFilePath = new Text("/home/bam/Projects/md5mapreduce/src/test/resources/thermo.wav");
+    Text output = new Text("/usr/bin/md5sum\n" +
+            "a9ecebfc7077312db5b483c0cae6dd73  /home/bam/Projects/md5mapreduce/src/test/resources/thermo.wav\n" +
+            "\n");
+
     @Before
     public void setUp() {
         ProcessBuilder pb = new ProcessBuilder("/usr/bin/md5sum", "/home/bam/Projects/md5mapreduce/src/test/resources/thermo.wav");
@@ -49,29 +54,25 @@ public class MD5JobTest {
 
     @Test
     public void testMapper() {
-        mapDriver.withInput(new LongWritable(1),
-                new Text("/home/bam/Projects/md5mapreduce/src/test/resources/thermo.wav"));
-        mapDriver.withOutput(new Text("a9ecebfc7077312db5b483c0cae6dd73  thermo.wav"), new LongWritable(1));
-        mapDriver.withOutput(new Text("a9ecebfc7077312db5b483c0cae6dd73  thermo.wav"), new LongWritable(1));
-        mapDriver.withOutput(new Text("1ae53db990d24de3a9791c766f0ce441  sample1.mp3_SCAPEFFMPEG25305Service_output_fileFile_5654730431746157568.tmp"), new LongWritable(1));
+        mapDriver.withInput(new LongWritable(0), inputFilePath);
+        mapDriver.withOutput(output, new LongWritable(0));
         mapDriver.runTest();
     }
 
     @Test
     public void testReducer() {
         List<LongWritable> values = new ArrayList<LongWritable>();
-        values.add(new LongWritable(1));
-        values.add(new LongWritable(1));
-        reduceDriver.withInput(new Text("a9ecebfc7077312db5b483c0cae6dd73  thermo.wav"), values);
-        reduceDriver.withOutput(new Text("a9ecebfc7077312db5b483c0cae6dd73  thermo.wav"), new LongWritable(2));
+        values.add(new LongWritable(0));
+        reduceDriver.withInput(output, values);
+        reduceDriver.withOutput(output, new LongWritable(0));
         reduceDriver.runTest();
     }
 
     @Test
     public void testMapReduce() {
-        mapReduceDriver.withInput(new LongWritable(1), new Text("cat cat dog"));
-        mapReduceDriver.addOutput(new Text("a9ecebfc7077312db5b483c0cae6dd73  thermo.wav"), new LongWritable(2));
-        mapReduceDriver.addOutput(new Text("1ae53db990d24de3a9791c766f0ce441  sample1.mp3_SCAPEFFMPEG25305Service_output_fileFile_5654730431746157568.tmp"), new LongWritable(1));
+        mapReduceDriver.withInput(new LongWritable(1), inputFilePath);
+        mapReduceDriver.addOutput(output, new LongWritable(0));
         mapReduceDriver.runTest();
     }
+
 }

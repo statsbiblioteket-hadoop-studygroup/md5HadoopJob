@@ -49,6 +49,8 @@ public class MD5Job extends Configured implements Tool{
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
 
+        job.setNumReduceTasks(1);
+
         return job.waitForCompletion(true) ? 0 : -1;
     }
 
